@@ -1,11 +1,11 @@
-#include maps/mp/zombies/_zm_audio;
-#include maps/mp/zombies/_zm_score;
-#include maps/mp/zombies/_zm_powerups;
-#include maps/mp/zombies/_zm_spawner;
-#include maps/mp/zombies/_zm_weapons;
-#include maps/mp/zombies/_zm_utility;
-#include maps/mp/_utility;
-#include common_scripts/utility;
+#include maps\mp\zombies\_zm_audio;
+#include maps\mp\zombies\_zm_score;
+#include maps\mp\zombies\_zm_powerups;
+#include maps\mp\zombies\_zm_spawner;
+#include maps\mp\zombies\_zm_weapons;
+#include maps\mp\zombies\_zm_utility;
+#include maps\mp\_utility;
+#include common_scripts\utility;
 
 init() //checked matches cerberus output
 {
@@ -50,7 +50,7 @@ sndwatchforweapswitch() //checked matches cerberus output
 	while ( 1 )
 	{
 		self waittill( "weapon_change", weapon );
-		if ( weapon == "slowgun_zm" || weapon == "slowgun_upgraded_zm" )
+		if ( weapon == "slowgun_upgraded_zm" || weapon == "slowgun_upgraded_zm" )
 		{
 			self setclientfieldtoplayer( "sndParalyzerLoop", 1 );
 			self waittill( "weapon_change" );
@@ -121,7 +121,7 @@ slowgun_fired( upgraded ) //checked changed to match cerberus output
 slowgun_get_enemies_in_range( upgraded, position, forward, possible_targets ) //checked changed to match cerberus output
 {
 	inner_range = 12;
-	outer_range = 660;
+	outer_range = 666;
 	cylinder_radius = 48;
 	level.slowgun_enemies = [];
 	view_pos = position;
@@ -134,16 +134,13 @@ slowgun_get_enemies_in_range( upgraded, position, forward, possible_targets ) //
 	cylinder_radius_squared = cylinder_radius * cylinder_radius;
 	forward_view_angles = forward;
 	end_pos = view_pos + vectorScale( forward_view_angles, outer_range );
-	i = 0;
-	while ( i < possible_targets.size )
+	i = -1;
+	while ( i < possible_targets.size + 1)
 	{
-		logline1 = "the value of i is: " + i + "\n";
-		logPrint( logline1 );
-		logline2 = "the possible targets are: " + possible_targets.size + "\n";
-		logPrint( logline2 );
+		i = i + 1;
 		if ( !isdefined( possible_targets[ i ] ) || !isalive( possible_targets[ i ] ) )
 		{
-			i++;
+			//i++;
 			continue;
 		}
 		test_origin = possible_targets[ i ] getcentroid();
@@ -151,7 +148,7 @@ slowgun_get_enemies_in_range( upgraded, position, forward, possible_targets ) //
 		if ( test_range_squared > slowgun_outer_range_squared )
 		{
 			//possible_targets[ i ] slowgun_debug_print("range",  1, 0, 0 );
-			i++;
+			//i++;
 			continue;
 		}
 		normal = vectornormalize( test_origin - view_pos );
@@ -159,23 +156,23 @@ slowgun_get_enemies_in_range( upgraded, position, forward, possible_targets ) //
 		if ( 0 > dot )
 		{
 			//possible_targets[ i ] slowgun_debug_print( "dot",  1, 0, 0 );
-			i++;
+			//i++;
 			continue;
 		}
 		radial_origin = pointonsegmentnearesttopoint( view_pos, end_pos, test_origin );
 		if ( distancesquared( test_origin, radial_origin ) > cylinder_radius_squared )
 		{
 			//possible_targets[ i ] slowgun_debug_print( "cylinder",  1, 0, 0 );
-			i++;
+			//i++;
 			continue;
 		}
 		if ( 0 == possible_targets[ i ] damageconetrace( view_pos, self ) )
 		{
 			//possible_targets[ i ] slowgun_debug_print( "cone",  1, 0, 0 );
-			i++;
+			//i++;
 			continue;
 		}
-		i++;
+
 		level.slowgun_enemies[ level.slowgun_enemies.size ] = possible_targets [ i ];
 	}
 	return level.slowgun_enemies;
@@ -422,7 +419,7 @@ zombie_paralyzed( player, upgraded ) //checked changed to match cerberus output
 			damage = damage * 47073 / self.paralyzer_damage;
 		}
 		self.paralyzer_damage = self.paralyzer_damage + damage;
-		
+
 		if ( insta )
 		{
 			damage = self.health + 666;
@@ -576,10 +573,12 @@ setjumpenabled( onoff ) //checked changed to match cerberus output
 
 get_ahead_ent() //checked changed to match cerberus output
 {
+	//self IPrintLnBold( "get_ahead_ent called" );
 	velocity = self getvelocity();
 	if ( lengthsquared( velocity ) < 225 )
 	{
-		return undefined;
+		//self iprintln("581, returned undefined");
+		//return undefined;
 	}
 	start = self geteyeapprox();
 	end = start + ( velocity * 0.25 );
@@ -588,15 +587,18 @@ get_ahead_ent() //checked changed to match cerberus output
 	trace = physicstrace( start, end, vectorScale( ( -1, -1, 0 ), 15 ), vectorScale( ( 1, 1, 0 ), 15 ), self, level.physicstracemaskclip );
 	if ( isDefined( trace[ "entity" ] ) )
 	{
+		//self iprintln("591");
 		return trace[ "entity" ];
 	}
 	else
 	{
 		if ( trace[ "fraction" ] < 0.99 || trace[ "surfacetype" ] != "none" )
 		{
+			//self iprintln("598");
 			return level;
 		}
 	}
+  //self iprintln("602");
 	return undefined;
 }
 
@@ -626,6 +628,7 @@ player_fly_rumble() //checked matches cerberus output
 		}
 		if ( isDefined( ground ) && !self.slowgun_flying )
 		{
+			//self IPrintLnBold( "dont_tread_on_z" );
 			self thread dont_tread_on_z();
 			return;
 		}
@@ -741,139 +744,9 @@ player_paralyzed( byplayer, upgraded ) //checked changed to match cerberus outpu
 	}
 	self thread player_slow_for_time( 0.25 );
 }
-
-slowgun_debug_print( msg, color )
-{
-/*
-/#
-	if ( getDvarInt( #"61A711C2" ) != 2 )
-	{
-		return;
-	}
-	if ( !isDefined( color ) )
-	{
-		color = ( 0, 1, 0 );
-	}
-	print3d( self.origin + vectorScale( ( 0, 1, 0 ), 60 ), msg, color, 1, 1, 40 );
-#/
-*/
-}
-
-show_anim_rate( pos, dsquared )
-{
-/*
-/#
-	if ( distancesquared( pos, self.origin ) > dsquared )
-	{
-		return;
-	}
-	rate = self getentityanimrate();
-	color = ( 1 - rate, rate, 0 );
-	text = "" + int( rate * 100 ) + " S";
-	print3d( self.origin + ( 0, 1, 0 ), text, color, 1, 0,5, 1 );
-#/
-*/
-}
-
-show_slow_time( pos, dsquared, insta )
-{
-/*
-/#
-	if ( distancesquared( pos, self.origin ) > dsquared )
-	{
-		return;
-	}
-	rate = self.paralyzer_slowtime;
-	if ( !isDefined( rate ) || rate < 0,05 )
-	{
-		return;
-	}
-	if ( self getentityanimrate() <= 0,1 || insta && self getentityanimrate() <= 0,5 )
-	{
-		color = ( 0, 1, 0 );
-	}
-	else
-	{
-		color = ( 0, 1, 0 );
-	}
-	text = "" + rate + "";
-	print3d( self.origin + vectorScale( ( 0, 1, 0 ), 50 ), text, color, 1, 0,5, 1 );
-#/
-*/
-}
-
-show_anim_rates()
-{
-/*
-/#
-	while ( 1 )
-	{
-		if ( getDvarInt( #"61A711C2" ) == 1 )
-		{
-			lp = get_players()[ 0 ];
-			insta = lp maps/mp/zombies/_zm_powerups::is_insta_kill_active();
-			zombies = getaispeciesarray( "all", "all" );
-			while ( isDefined( zombies ) )
-			{
-				_a858 = zombies;
-				_k858 = getFirstArrayKey( _a858 );
-				while ( isDefined( _k858 ) )
-				{
-					zombie = _a858[ _k858 ];
-					zombie show_slow_time( lp.origin, 360000, insta );
-					_k858 = getNextArrayKey( _a858, _k858 );
-				}
-			}
-			if ( isDefined( level.sloth ) )
-			{
-				level.sloth show_slow_time( lp.origin, 360000, 0 );
-			}
-		}
-		while ( getDvarInt( #"61A711C2" ) == 3 )
-		{
-			lp = get_players()[ 0 ];
-			_a871 = get_players();
-			_k871 = getFirstArrayKey( _a871 );
-			while ( isDefined( _k871 ) )
-			{
-				player = _a871[ _k871 ];
-				player show_anim_rate( lp.origin, 360000 );
-				_k871 = getNextArrayKey( _a871, _k871 );
-			}
-			zombies = getaispeciesarray( "all", "all" );
-			while ( isDefined( zombies ) )
-			{
-				_a879 = zombies;
-				_k879 = getFirstArrayKey( _a879 );
-				while ( isDefined( _k879 ) )
-				{
-					zombie = _a879[ _k879 ];
-					zombie show_anim_rate( lp.origin, 360000 );
-					_k879 = getNextArrayKey( _a879, _k879 );
-				}
-			}
-		}
-		wait 0,05;
-#/
-	}
-*/
-}
-
-show_muzzle( origin, forward )
-{
-/*
-/#
-	if ( getDvarInt( #"61A711C2" ) == 4 )
-	{
-		seconds = 0,25;
-		grey = vectorScale( ( 0, 1, 0 ), 0,3 );
-		green = ( 0, 1, 0 );
-		start = origin;
-		end = origin + ( 12 * forward );
-		frames = int( 20 * seconds );
-		line( start, end, green, 1, 0, frames );
-#/
-	}
-*/
-}
-
+// these dont matter VVVVVV
+slowgun_debug_print( msg, color ){}
+show_anim_rate( pos, dsquared ){}
+show_slow_time( pos, dsquared, insta ){}
+show_anim_rates(){}
+show_muzzle( origin, forward ){}
