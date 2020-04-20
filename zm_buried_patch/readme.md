@@ -3,10 +3,10 @@
 ```
 ### The following scripts compile and run successfully with minor errors:
 ```
+zm_buried_patch/maps/mp/zombies/_zm_weap_slowgun.gsc
 ```
 ### The following scripts compile and run successfully with major errors:
 ```
-zm_buried_patch/maps/mp/zombies/_zm_weap_slowgun.gsc
 ```
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
 ```
