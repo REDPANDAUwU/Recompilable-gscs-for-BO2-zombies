@@ -20,6 +20,7 @@ zm_buried_patch/maps/mp/zombies/_zm_weap_slowgun.gsc
 
 ### notes:
 ```
+the only bug with zm_buried_patch/maps/mp/zombies/_zm_weap_slowgun.gsc are bugs already present in dedicated servers
 ```
 
 
